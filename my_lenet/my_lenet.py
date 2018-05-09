@@ -71,13 +71,13 @@ model.compile(loss="categorical_crossentropy", optimizer=opt,
               metrics=["accuracy"])
 
 #5)Training model
-model.fit(trainData, trainLabels, batch_size=128, nb_epoch=20,
+model.fit(trainData, trainLabels, batch_size=128, nb_epoch=1,
           verbose=1)
 
 (loss, accuracy) = model.evaluate(testData, testLabels,
                                   batch_size=128, verbose=1)
 print("[INFO] accuracy: {:.2f}%".format(accuracy * 100))
-model = Sequential()#one layer after the other
+#model = Sequential()#one layer after the other
 model.save_weights("lenet_weights.hdf5", overwrite=True)
 
 model_json = model.to_json()
