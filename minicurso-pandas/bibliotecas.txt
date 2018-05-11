@@ -5,4 +5,6 @@ seaborn
 scipy
 sklearn
 chardet
-mlxtend
+mlxtend conda install -c conda-forge mlxtend 
+
+http://minerandodados.com.br/index.php/2017/11/10/dominando-o-pandas-datascience-dozero/
