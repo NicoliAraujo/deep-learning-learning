@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     img_height, img_width = (64, 64)
 
-    train_generator = train_dataset.generate(batch_size=4,
+    train_generator = train_dataset.generate(batch_size=32,
                                              shuffle=True,
                                              ssd_train=False,
                                              returns={'processed_labels',
@@ -39,5 +39,6 @@ if __name__ == '__main__':
                                              limit_boxes=True,
                                              # While the anchor boxes are not being clipped, the ground truth boxes should be
                                              include_thresh=0.4)
- 
-    print(next(train_generator))
+    
+    result = next(train_generator)
+    #print(assert(result)

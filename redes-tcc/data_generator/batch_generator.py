@@ -898,16 +898,20 @@ class BatchGenerator:
             batch_items_to_remove = []  # In case we need to remove any images from the batch because of failed random cropping, store their indices in this list.
 
             for i in range(len(batch_X)):
-
                 img_height, img_width = batch_X[i].shape[0], batch_X[i].shape[1]
 
                 if not batch_y is None:
                     # If this image has no ground truth boxes, maybe we don't want to keep it in the batch.
                     if (len(batch_y[i]) == 0) and not keep_images_without_gt:
+                        print('removendo ', i)
                         batch_items_to_remove.append(i)
+                    elif (batch_y[i].shape[0] > 1):
+                        batch_y[i] = batch_y[i][0]
                     # Convert labels into an array (in case it isn't one already), otherwise the indexing below breaks.
-                    batch_y[i] = np.array(batch_y[i])
-
+                    try:
+                        batch_y[i] = np.array(batch_y[i]).reshape(1,len(self.box_output_format))
+                    except:
+                        yield batch_y
                 # From here on, perform some optional image transformations.
 
                 if (batch_X[i].ndim == 2):
@@ -1050,7 +1054,6 @@ class BatchGenerator:
                         resize = (random_pad_and_resize[0], random_pad_and_resize[1])
              
                 if random_crop:
-                    print('random crop', random_crop)
                     # Compute how much room we have in both dimensions to make a random crop.
                     # A negative number here means that we want to crop out a patch that is larger than the original image in the respective dimension,
                     # in which case we will create a black background canvas onto which we will randomly place the image.
@@ -1200,6 +1203,7 @@ class BatchGenerator:
                             elif (trial_counter >= random_crop[3]) and (
                             not i in batch_items_to_remove):  # If we've reached the trial limit and still not found a valid crop, remove this image from the batch
                                 batch_items_to_remove.append(i)
+                                print('removendo ', i)
                         elif self.task == 'recognition':  # If `batch_y` is `None`, i.e. if we don't have ground truth data, any crop is a valid crop.
                             batch_X[i] = patch_X  # The cropped patch becomes our new batch item
                             batch_inverse_coord_transform[i, [ymin - ios, ymax - ios], 0] += patch_y_inverse_y
@@ -1308,10 +1312,18 @@ class BatchGenerator:
                 else:
                     batch_y_true = ssd_box_encoder.encode_y(batch_y,
                                                             diagnostics=False)  # Encode the labels into the `y_true` tensor that the SSD loss function needs.
-
+            try:
+                batch_y = np.array(batch_y).reshape(len(batch_y), len(self.box_output_format))
+            except ValueError:
+                yield batch_y
+            try:
+                batch_X = np.array(batch_X).reshape(len(batch_X), resize[0], resize[1], 3)
+            except ValueError:
+                yield batch_X
             # Compile the output.
             ret = []
             ret.append(batch_X)
+            
             if ssd_train:
                 ret.append(batch_y_true)
                 if 'matched_anchors' in returns: ret.append(batch_matched_anchors)
