@@ -119,10 +119,15 @@ def set_labels_for_age(dataframe):
     return dataframe_edited[['image_name', 'xmin', 'xmax', 'ymin', 'ymax', 'class_id']]
 
 
-def set_labels_for_gender(df):
+def set_labels_for_gender(df, task):
     dataframe_edited = df.rename(columns={'full_path': 'image_name',
                        'gender': 'class_id'})
-    return dataframe_edited[['image_name', 'xmin', 'xmax', 'ymin', 'ymax', 'class_id']]
+    if task=='classification':
+        return dataframe_edited[['image_name', 'class_id']]
+    elif task=='detection':
+        return dataframe_edited[['image_name', 'xmin', 'xmax', 'ymin', 'ymax', 'class_id']]
+    else:
+        raise ValueError('task must be either classification or detection')
     
 def process(num_threads, function, args):
     q = Queue()
