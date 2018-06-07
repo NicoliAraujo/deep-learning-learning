@@ -1,6 +1,7 @@
 from keras.models import Sequential
 from keras.layers.convolutional import Conv2D, MaxPooling2D
-from keras.layers.core import Activation, Flatten, Dense
+from keras.layers import Activation, Flatten, Dense, Dropout
+
 from keras.layers.normalization import BatchNormalization
 from keras import backend as K
 import warnings
@@ -80,7 +81,10 @@ class AlexNet:
 
         model.add(Flatten(name='flatten'))
         model.add(Dense(4096, activation='relu', name='dense_1'))
+        model.add(Dropout(0.5))
+        
         model.add(Dense(4096, activation='relu', name='dense_2'))
+        model.add(Dropout(0.5))
         
         model.add(Dense(n_classes, name='dense_3'))
         

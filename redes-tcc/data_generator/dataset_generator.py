@@ -113,12 +113,16 @@ def set_face_locations(df):
     
     return df
 
-def set_labels_for_age(dataframe):
+def set_labels_for_age(dataframe, task='regression'):
     dataframe_edited = dataframe.rename(columns={'full_path': 'image_name',
                                'age': 'class_id'})
-    return dataframe_edited[['image_name', 'xmin', 'xmax', 'ymin', 'ymax', 'class_id']]
-
-
+    dataframe_edited['class_id'] = dataframe_edited['class_id'].astype(int)
+    if task=='regression':
+        dataframe_edited = dataframe_edited[['image_name', 'class_id']]
+        return dataframe_edited
+    else: 
+        raise ValueError('task must be regression')
+    
 def set_labels_for_gender(df, task):
     dataframe_edited = df.rename(columns={'full_path': 'image_name',
                        'gender': 'class_id'})
