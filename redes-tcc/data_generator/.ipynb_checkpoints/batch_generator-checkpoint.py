@@ -672,6 +672,7 @@ class BatchGenerator:
                  include_thresh=0.3,
                  subtract_mean=None,
                  divide_by_stddev=None,
+                 divide_by_255=False,
                  swap_channels=False,
                  keep_images_without_gt=False):
         '''
@@ -1301,7 +1302,8 @@ class BatchGenerator:
                 batch_X = batch_X.astype(np.int16) / np.array(divide_by_stddev)
             if swap_channels:
                 batch_X = batch_X[:, :, :, [2, 1, 0]]
-
+            if divide_by_255:
+                batch_X = batch_X.astype(np.float32) / 255.0
             if ssd_train:  # During training we need the encoded labels instead of the format that `batch_y` has
                 if ssd_box_encoder is None:
                     raise ValueError("`ssd_box_encoder` cannot be `None` in training mode.")

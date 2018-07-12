@@ -186,6 +186,7 @@ def set_gender_data_splits(df, new_size, train_split, val_split, test_split, cla
     return train_df, val_df, test_df
 
 def set_age_data_splits(df, new_size, train_split, val_split, test_split, target):
+    df = sample_dataframe(new_size)
     train_df, val_df, test_df = split_data(df, train_split, val_split, test_split)
     return train_df, val_df, test_df
 

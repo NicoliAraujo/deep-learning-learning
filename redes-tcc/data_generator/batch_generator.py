@@ -47,6 +47,41 @@ except ImportError:
         "'pickle' module is missing. You won't be able to save parsed file lists and annotations as pickled files.")
 
 
+def set_test_image(image, 
+                   equalize=False,
+                   gray=False,
+                   brightness=False,
+                   divide_by_stddev=None,
+                   subtract_mean=None,
+                   swap_channels=False,
+                   convert_to_3_channels=False,
+                   resize=None):
+    if equalize:
+        image = histogram_eq(image)
+    if gray:
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        if convert_to_3_channels:
+            image = np.stack([image] * 3, axis=-1)
+        else:
+            image = np.expand_dims(image, axis=-1)
+            
+    if brightness:
+        p = np.random.uniform(0, 1)
+        if p >= (1 - brightness[2]):
+            image = _brightness(image, min=brightness[0], max=brightness[1])
+
+    
+    if not (subtract_mean is None):
+        image = image.astype(np.int16) - np.array(subtract_mean)
+    if not (divide_by_stddev is None):
+        image = image.astype(np.int16) / np.array(divide_by_stddev)
+    if swap_channels:
+        image = image[:, :, [1, 0]]
+    if resize:
+        image = cv2.resize(image, dsize=(resize[1], resize[0]))
+         
+    return image
+
 def _translate(image, horizontal=(0, 40), vertical=(0, 10)):
     '''
     Randomly translate the input image horizontally and vertically.
@@ -325,8 +360,12 @@ class BatchGenerator:
                     box.append(row[self.input_format.index(
                         'image_name')].strip())  # Select the image name column in the input format and append its content to `box`
                     for element in self.box_output_format:  # For each element in the output format (where the elements are the class ID and the four box coordinates)...
-                        box.append(int(row[self.input_format.index(
-                            element)].strip()))  # ...select the respective column in the input format and append it to `box`.
+                        try:
+                            box.append(int(row[self.input_format.index(
+                                element)].strip()))  # ...select the respective column in the input format and append it to `box`.
+                        except:
+                            box.append(row[self.input_format.index(
+                                element)].strip())
                     data.append(box)
 
         data = sorted(data)  # The data needs to be sorted, otherwise the next step won't give the correct result
